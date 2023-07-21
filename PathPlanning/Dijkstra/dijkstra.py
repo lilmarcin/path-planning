@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 from collections import deque
 from math import sqrt
 import sys
@@ -9,12 +8,6 @@ from map_1 import QuadraticMap
 from map_2 import LineMap
 from empty_map import EmptyMap
 from maze_1 import Maze1
-
-def euclidean_distance(point1, point2):
-    """
-    Euclidean distance heuristic to estimate the cost from a given point to the end point.
-    """
-    return sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
 
 def draw_map(map_obj, visited_points, path, current_point=None):
@@ -52,37 +45,36 @@ def draw_map(map_obj, visited_points, path, current_point=None):
     plt.ylim(0, y_range)
     plt.grid(True)
     plt.pause(0.001)
-    plt.draw()
 
-def astar(map_obj, start_point, end_point):
+
+def dijkstra(map_obj, start_point, end_point):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
 
     if (start_point[0] < 0 or start_point[0] >= x_range or
         start_point[1] < 0 or start_point[1] >= y_range or 
-        start_point in obstacles or
+        start_point in obstacles or 
         end_point[0] < 0 or end_point[0] >= x_range or
         end_point[1] < 0 or end_point[1] >= y_range or
         end_point in obstacles):
         print("Start point and end point must not be in the obstacle!")
         return None
 
-    pq = [(0 + euclidean_distance(start_point, end_point), 0, start_point, [])]  # Priority queue (heuristic + cost, cost, current_point, path)
+    pq = [(0, start_point, [])]  # Priority queue (cost, current_point, path)
     heapq.heapify(pq) 
     visited = set()
     shortest_cost = {}
 
-    print("Starting A*...")
+    print("Starting Dijkstra...")
     while pq:
-        _, cost, current_point, path = heapq.heappop(pq)  # Get the lowest priority item from the heap
+        cost, current_point, path = heapq.heappop(pq)
         draw_map(map_obj, visited, path, current_point) 
         visited.add(current_point)
 
         if current_point == end_point:
             print("Path found:", path + [current_point])
             path.append(end_point)
-            #draw_map(map_obj, visited, path, current_point)
             return path
 
         neighbors = [(current_point[0] + dx, current_point[1] + dy) for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]]
@@ -98,8 +90,7 @@ def astar(map_obj, start_point, end_point):
 
             if neighbor not in shortest_cost or new_cost < shortest_cost[neighbor]:
                 shortest_cost[neighbor] = new_cost
-                priority = new_cost + euclidean_distance(neighbor, end_point)
-                heapq.heappush(pq, (priority, new_cost, neighbor, path + [current_point]))
+                heapq.heappush(pq, (new_cost, neighbor, path + [current_point]))
 
     print("Path not found.")
     return None
@@ -112,10 +103,9 @@ if __name__ == "__main__":
     -EmptyMap()
     -Maze1()
     """    
-    map = Maze1()
-    start_point = (5, 5)
-    end_point = (5, 9)
-    plt.ion()
-    astar(map, start_point, end_point)
-    plt.ioff()
+    map = LineMap()
+    start_point = (1, 1)
+    end_point = (9, 9)
+    # Wywołaj algorytm Dijkstry i zapisz wynik do zmiennej path
+    dijkstra(map, start_point, end_point)
     plt.show()

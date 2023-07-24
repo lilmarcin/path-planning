@@ -22,16 +22,9 @@ class EmptyMap:
         self.x_range = 10 # x size of grid
         self.y_range = 10 # y size of grid
         self.obstacles = self.obstacles_map()
-
-    def update_obstacles(self, obstacles):
-        self.obs = obstacles
+        self.obstacles_lines = self.obstacles_lines_map()
 
     def obstacles_map(self):
-        """
-        Initialize obstacles' positions
-        :return: map of obstacles
-        """
-
         x = self.x_range+1
         y = self.y_range+1
         obstacles = set()
@@ -46,21 +39,38 @@ class EmptyMap:
             obstacles.add((0, i))
         for i in range(y):
             obstacles.add((x - 1, i))
-
         return obstacles
     
+    def obstacles_lines_map(self):
+        """
+        Initialize obstacles' positions
+        :return: map of obstacles
+        """
+
+        x = self.x_range
+        y = self.y_range
+        obstacles_lines = set()
+
+        # Outer Walls
+        obstacles_lines = [
+            [(0, 0), (x, 0)],      # Bottom Wall 
+            [(x, 0), (x, y)],    # Right Wall
+            [(x, y), (0, y)],    # Top Wall
+            [(0, y), (0, 0)]      # Left Wall
+        ]
+
+        return obstacles_lines
+
 """ if __name__ == "__main__":
-
     map = EmptyMap()
-    x_range = map.x_range
-    y_range = map.y_range
-    obstacles = map.obstacles
 
-    # Plot obstacles
-    for obstacle in obstacles:
-        plt.scatter(obstacle[0], obstacle[1], color='black', s=100)
-        
-    plt.xlim(0, x_range)
-    plt.ylim(0, y_range)
+    # Rysuj ściany
+    for obstacle in map.obstacles_lines:
+        x_coords, y_coords = zip(*obstacle)
+        plt.plot(x_coords, y_coords, color='black', linewidth=5)
+
+    plt.xlim(0, map.x_range)
+    plt.ylim(0, map.y_range)
     plt.grid(True)
-    plt.show()  """
+    plt.show()
+ """

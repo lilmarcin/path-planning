@@ -13,14 +13,16 @@ def draw_map(map_obj, visited_points, path, current_point=None):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
+    obstacles_lines = map_obj.obstacles_lines
 
     # Plot obstacles
-    for obstacle in obstacles:
-        plt.scatter(obstacle[0], obstacle[1], color='black', s=100)
+    for obstacle in obstacles_lines:
+        x_coords, y_coords = zip(*obstacle)
+        plt.plot(x_coords, y_coords, color='black', linewidth=5)
 
     # Plot visited points
     for point in visited_points:
-        plt.scatter(point[0], point[1], color='gray', s=50)
+        plt.scatter(point[0], point[1], color='gray', s=5)
 
     # Plot path
     for i in range(len(path) - 1):
@@ -46,6 +48,14 @@ def draw_map(map_obj, visited_points, path, current_point=None):
     plt.draw()
 
 def dfs(map_obj, start_point, end_point):
+    """
+    Depth First Search (DFS) algorithm to find the path between two points on the map.
+
+    :param map_obj: Map class object (np. EmptyMap, QuadraticMap, LineMap)
+    :param start_point: Coordinates of the start point in the format (x, y)
+    :param end_point: Coordinates of the end point in the format (x, y)
+    :return: List of coordinates representing the path from start_point to end_point.
+    """
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles

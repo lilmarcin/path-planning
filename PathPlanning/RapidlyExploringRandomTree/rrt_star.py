@@ -18,25 +18,24 @@ def draw_map(map_obj, nodes, path=None):
     # Plot obstacles
     for obstacle in obstacles_lines:
         x_coords, y_coords = zip(*obstacle)
-        plt.plot(x_coords, y_coords, color='black', linewidth=5)
+        plt.plot(x_coords, y_coords, color='black', linewidth=1)
 
     # Plot nodes
     for node, parent_node,_ in nodes:
         #plt.scatter(node[0], node[1], color='gray', s=5)
         if parent_node is not None and node != end_point:
-            plt.plot([node[0], parent_node[0]], [node[1], parent_node[1]], color='green')
+            plt.plot([node[0], parent_node[0]], [node[1], parent_node[1]], color='green', alpha=0.5)
 
     # Plot start and end points
     plt.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
-    plt.scatter(end_point[0], end_point[1], color='red', s=100, label='End Point')
+    plt.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
 
     # Plot path
     if path:
         current_node = path[0]
         for next_node in path[1:]:
-            plt.plot([current_node[0], next_node[0]], [current_node[1], next_node[1]], color='cyan')
+            plt.plot([current_node[0], next_node[0]], [current_node[1], next_node[1]], color='red')
             current_node = next_node
-        plt.scatter(end_point[0], end_point[1], color='green', s=100, label='End Point')
 
 
         
@@ -58,11 +57,46 @@ def is_far_from_obstacles(point, obstacles, min_distance=0.5):
             return False
     return True
 
-def rrt_star(map_obj, start_point, end_point, max_iterations=100000):
+def intersects_obstacle(point1, point2, obstacles_lines):
+    for obstacle in obstacles_lines:
+        for i in range(len(obstacle)):
+            x1, y1 = obstacle[i]
+            x2, y2 = obstacle[(i + 1) % len(obstacle)]
+            if check_segments_intersect(point1, point2, (x1, y1), (x2, y2)):
+                return True
+    return False
+
+def check_segments_intersect(p1, q1, p2, q2):
+    # Sprawdzamy czy odcinek (point1, point2) przecina odcinek (x1, y1) -> (x2, y2)
+    def orientation(p, q, r):
+        val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+        if val == 0:
+            return 0
+        return 1 if val > 0 else 2
+
+    def on_segment(p, q, r):
+        return (q[0] <= max(p[0], r[0]) and q[0] >= min(p[0], r[0]) and
+                q[1] <= max(p[1], r[1]) and q[1] >= min(p[1], r[1]))
+
+    o1 = orientation(p1, q1, p2)
+    o2 = orientation(p1, q1, q2)
+    o3 = orientation(p2, q2, p1)
+    o4 = orientation(p2, q2, q1)
+
+    if (o1 != o2 and o3 != o4) or (o1 == 0 and on_segment(p1, p2, q1)) or \
+            (o2 == 0 and on_segment(p1, q2, q1)) or \
+            (o3 == 0 and on_segment(p2, p1, q2)) or \
+            (o4 == 0 and on_segment(p2, q1, q2)):
+        return True
+    return False
+
+
+def rrt_star(map_obj, start_point, end_point, max_points=10000, rewire_radius=0.5):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
-    nodes = [(start_point, None, 0)]  # Dodajemy koszt do węzła
+    obstacles_lines = map_obj.obstacles_lines
+    nodes = [(start_point, None, 0)] 
     parent_nodes = {start_point: None}
     costs = {start_point: 0}
 
@@ -76,7 +110,8 @@ def rrt_star(map_obj, start_point, end_point, max_iterations=100000):
         return None
 
     print("Starting RRT*...")
-    for _ in range(max_iterations):
+    points_added = 0
+    while points_added < max_points:
         target_point = (round(random.uniform(0, x_range), 2), round(random.uniform(0, y_range), 2))
         
         nearest_dist = float('inf')
@@ -92,37 +127,49 @@ def rrt_star(map_obj, start_point, end_point, max_iterations=100000):
         if nearest_node is None:
             continue
                 
-        if nearest_dist >= 0.5 and nearest_dist <= 1.0 and is_far_from_obstacles(target_point, obstacles):
-            parent = nearest_node if nearest_dist <= 1.0 else nearest_parent
-            cost = nearest_cost + euclidean_distance(parent, target_point)
-            
-            current_node = nearest_node
-            while current_node != start_point:
-                if cost < costs[current_node]: 
-                    costs[current_node] = cost
-                    parent_nodes[current_node] = parent
-                current_node = parent_nodes[current_node]
+        if nearest_dist <= 1.5 and is_far_from_obstacles(target_point, obstacles):
+            parent = nearest_node if nearest_dist <= 1.5 else nearest_parent
+            if not intersects_obstacle(parent, target_point, obstacles_lines):
+                cost = nearest_cost + euclidean_distance(parent, target_point)
                 
-            nodes.append((target_point, parent, cost))
-            parent_nodes[target_point] = parent
-            costs[target_point] = cost
-            #draw_map(map_obj, nodes)
-            if euclidean_distance(target_point, end_point) <= 0.5 and is_far_from_obstacles(target_point, obstacles):
-                nodes.append((end_point, target_point, cost + euclidean_distance(target_point, end_point)))
-                parent_nodes[end_point] = target_point
-                costs[end_point] = cost + euclidean_distance(target_point, end_point)
-                #print("PARENT NODES", parent_nodes)
-                print("Path found.")
-                path = [end_point]
-                current_node = target_point
+                # Rewire step
+                for node, _, node_cost in nodes:
+                    if node == parent:
+                        continue
+                    if euclidean_distance(node, target_point) <= rewire_radius:
+                        new_cost = cost + euclidean_distance(node, target_point)
+                        if new_cost < node_cost and not intersects_obstacle(node, target_point, obstacles_lines):
+                            parent_nodes[node] = target_point
+                            costs[node] = new_cost
+
+                current_node = nearest_node
                 while current_node != start_point:
-                    path.append(current_node)
+                    if cost < costs[current_node]: 
+                        costs[current_node] = cost
+                        parent_nodes[current_node] = parent
                     current_node = parent_nodes[current_node]
-                path.append(start_point)
-                path.reverse()
-                draw_map(map_obj, nodes, path)
-                print("path: ", path)
-                return path
+                
+                nodes.append((target_point, parent, cost))
+                parent_nodes[target_point] = parent
+                costs[target_point] = cost
+                points_added += 1
+                #draw_map(map_obj, nodes) # Uncomment to visualize every added point to the tree
+
+                if euclidean_distance(target_point, end_point) <= 1.0 and is_far_from_obstacles(target_point, obstacles):
+                    nodes.append((end_point, target_point, cost + euclidean_distance(target_point, end_point)))
+                    parent_nodes[end_point] = target_point
+                    costs[end_point] = cost + euclidean_distance(target_point, end_point)
+                    print(f"Path found at {points_added} iteration.")
+                    path = [end_point]
+                    current_node = target_point
+                    while current_node != start_point:
+                        path.append(current_node)
+                        current_node = parent_nodes[current_node]
+                    path.append(start_point)
+                    path.reverse()
+                    draw_map(map_obj, nodes, path)
+                    print("path: ", path)
+                    return path
     print("Path not found.")
     return None
 
@@ -134,8 +181,8 @@ if __name__ == "__main__":
     -EmptyMap()
     -Maze1()
     """    
-    map = QuadraticMap()
-    start_point = (1, 1)
-    end_point = (9, 9)
+    map = Maze1()
+    start_point = (5, 5)
+    end_point = (5, 9)
     rrt_star(map, start_point, end_point)
     plt.show()

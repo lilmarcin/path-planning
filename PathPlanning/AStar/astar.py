@@ -27,7 +27,7 @@ def draw_map(map_obj, visited_points, path, current_point=None):
     # Plot obstacles
     for obstacle in obstacles_lines:
         x_coords, y_coords = zip(*obstacle)
-        plt.plot(x_coords, y_coords, color='black', linewidth=5)
+        plt.plot(x_coords, y_coords, color='black', linewidth=1)
 
     # Plot visited points
     for point in visited_points:
@@ -35,7 +35,7 @@ def draw_map(map_obj, visited_points, path, current_point=None):
 
     # Plot path
     for i in range(len(path) - 1):
-        plt.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='cyan')
+        plt.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='red')
 
 
     # Plot current point
@@ -44,11 +44,11 @@ def draw_map(map_obj, visited_points, path, current_point=None):
 
     # Plot start and end points
     plt.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
-    plt.scatter(end_point[0], end_point[1], color='red', s=100, label='End Point')
+    plt.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
 
     if(current_point==end_point):
         plt.scatter(end_point[0], end_point[1], color='green', s=100, label='End Point')
-        plt.plot([path[-1][0], end_point[0]], [path[-1][1], end_point[1]], color='cyan')
+        plt.plot([path[-1][0], end_point[0]], [path[-1][1], end_point[1]], color='red')
         
     plt.xlim(0, x_range)
     plt.ylim(0, y_range)
@@ -86,7 +86,7 @@ def astar(map_obj, start_point, end_point):
     print("Starting A*...")
     while pq:
         _, cost, current_point, path = heapq.heappop(pq)  # Get the lowest priority item from the heap
-        draw_map(map_obj, visited, path, current_point) 
+        draw_map(map_obj, visited, path, current_point) # Uncomment to draw every node added to the tree
         visited.add(current_point)
 
         if current_point == end_point:
@@ -122,9 +122,8 @@ if __name__ == "__main__":
     -EmptyMap()
     -Maze1()
     """    
-    map = QuadraticMap()
-    start_point = (1, 1)
-    end_point = (9, 9)
-    # Wywołaj algorytm A* i zapisz wynik do zmiennej path
+    map = Maze1()
+    start_point = (5, 5)
+    end_point = (5, 9)
     astar(map, start_point, end_point)
     plt.show()

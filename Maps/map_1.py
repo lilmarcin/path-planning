@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # Plot obstacles
     for obstacle in map.obstacles_lines:
         x_coords, y_coords = zip(*obstacle)
-        plt.plot(x_coords, y_coords, color='black', linewidth=5)     
+        plt.plot(x_coords, y_coords, color='black', linewidth=1)     
 
     for obstacle in map.obstacles:
         plt.scatter(obstacle[0], obstacle[1], color='red', s=50)   

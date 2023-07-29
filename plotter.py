@@ -10,6 +10,7 @@ from Maps.empty_map import EmptyMap
 from Maps.map_1 import QuadraticMap
 from Maps.map_2 import LineMap
 from Maps.maze_1 import Maze1
+from Maps.maze_2 import Maze2
 
 from PathPlanning.AStar.astar import astar, intersect_obstacle
 from PathPlanning.Dijkstra.dijkstra import dijkstra
@@ -140,15 +141,17 @@ if __name__ == "__main__":
     ax_center.axis('off')
 
 
-    EmptyMap_button = Button(plt.axes([0.55, 0.8, 0.08, 0.05]), 'EmptyMap', color='white', hovercolor='lightblue')
-    LineMap_button = Button(plt.axes([0.55, 0.7, 0.08, 0.05]), 'LineMap', color='white', hovercolor='lightblue')
-    QuadraticMap_button = Button(plt.axes([0.55, 0.6, 0.08, 0.05]), 'QuadraticMap', color='white', hovercolor='lightblue')
-    Maze1_button = Button(plt.axes([0.55, 0.5, 0.08, 0.05]), 'Maze1', color='white', hovercolor='lightblue')
+    EmptyMap_button = Button(plt.axes([0.55, 0.8, 0.09, 0.03]), 'EmptyMap', color='white', hovercolor='lightblue')
+    LineMap_button = Button(plt.axes([0.55, 0.75, 0.09, 0.03]), 'LineMap', color='white', hovercolor='lightblue')
+    QuadraticMap_button = Button(plt.axes([0.55, 0.7, 0.09, 0.03]), 'QuadraticMap', color='white', hovercolor='lightblue')
+    Maze1_button = Button(plt.axes([0.55, 0.65, 0.09, 0.03]), 'Maze1', color='white', hovercolor='lightblue')
+    Maze2_button = Button(plt.axes([0.55, 0.6, 0.09, 0.03]), 'Maze2', color='white', hovercolor='lightblue')
 
     EmptyMap_button.on_clicked(lambda event: on_map_button_click(event, EmptyMap()))
     LineMap_button.on_clicked(lambda event: on_map_button_click(event, LineMap()))
     QuadraticMap_button.on_clicked(lambda event: on_map_button_click(event, QuadraticMap()))
     Maze1_button.on_clicked(lambda event: on_map_button_click(event, Maze1()))
+    Maze2_button.on_clicked(lambda event: on_map_button_click(event, Maze2()))
 
     algorithm_button = RadioButtons(plt.axes([0.7, 0.5, 0.15, 0.35]), ('A*', 'Dijkstra', 'RRT', 'RRT*','RRT-Connect','BFS', 'DFS' ))
     algorithm_button.on_clicked(on_algorithm_button_click)

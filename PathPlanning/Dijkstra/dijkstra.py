@@ -3,11 +3,6 @@ from collections import deque
 from math import sqrt
 import sys
 import heapq
-sys.path.append('Maps')
-from map_1 import QuadraticMap
-from map_2 import LineMap
-from empty_map import EmptyMap
-from maze_1 import Maze1
 
 
 def intersect_obstacle(map_obj, start_point, end_point):

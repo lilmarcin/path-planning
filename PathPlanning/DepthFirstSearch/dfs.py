@@ -1,12 +1,6 @@
 import matplotlib.pyplot as plt
 from collections import deque
-from math import sqrt
 import sys
-sys.path.append('Maps')
-from map_1 import QuadraticMap
-from map_2 import LineMap
-from empty_map import EmptyMap
-from maze_1 import Maze1
 
 def draw_map(ax, map_obj, start_point, end_point, visited_points, path, current_point=None):
     ax.clear()

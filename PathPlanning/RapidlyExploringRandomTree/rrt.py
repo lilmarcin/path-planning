@@ -2,11 +2,6 @@ import matplotlib.pyplot as plt
 import random
 import sys
 from math import sqrt
-sys.path.append('Maps')
-from map_1 import QuadraticMap
-from map_2 import LineMap
-from empty_map import EmptyMap
-from maze_1 import Maze1
 
 def draw_map(ax, map_obj,start_point, end_point, nodes, path=None):
     ax.clear()
@@ -87,7 +82,7 @@ def check_segments_intersect(p1, q1, p2, q2):
         return True
     return False
 
-def rrt(ax, map_obj, start_point, end_point, only_result, max_points=10000):
+def rrt(ax, map_obj, start_point, end_point, only_result, max_points=20000):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -123,7 +118,7 @@ def rrt(ax, map_obj, start_point, end_point, only_result, max_points=10000):
         if nearest_node is None:
             continue
                 
-        if nearest_dist <= 0.5 and is_far_from_obstacles(target_point, obstacles):
+        if nearest_dist <= 1.0 and is_far_from_obstacles(target_point, obstacles):
             parent = nearest_node if nearest_dist <= 1.0 else nearest_parent
             if not intersects_obstacle(parent, target_point, obstacles_lines):
                 current_node = nearest_node

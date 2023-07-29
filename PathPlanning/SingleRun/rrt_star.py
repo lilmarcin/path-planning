@@ -8,8 +8,8 @@ from map_2 import LineMap
 from empty_map import EmptyMap
 from maze_1 import Maze1
 
-def draw_map(ax, map_obj, start_point, end_point, nodes, path=None):
-    ax.clear()
+def draw_map(map_obj, nodes, path=None):
+    plt.clf() 
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -18,29 +18,32 @@ def draw_map(ax, map_obj, start_point, end_point, nodes, path=None):
     # Plot obstacles
     for obstacle in obstacles_lines:
         x_coords, y_coords = zip(*obstacle)
-        ax.plot(x_coords, y_coords, color='black', linewidth=1)
+        plt.plot(x_coords, y_coords, color='black', linewidth=1)
 
     # Plot nodes
     for node, parent_node,_ in nodes:
         #plt.scatter(node[0], node[1], color='gray', s=5)
         if parent_node is not None and node != end_point:
-            ax.plot([node[0], parent_node[0]], [node[1], parent_node[1]], color='green', alpha=0.5)
+            plt.plot([node[0], parent_node[0]], [node[1], parent_node[1]], color='green', alpha=0.5)
 
     # Plot start and end points
-    ax.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
-    ax.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
+    plt.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
+    plt.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
 
     # Plot path
     if path:
         current_node = path[0]
         for next_node in path[1:]:
-            ax.plot([current_node[0], next_node[0]], [current_node[1], next_node[1]], color='red')
+            plt.plot([current_node[0], next_node[0]], [current_node[1], next_node[1]], color='red')
             current_node = next_node
-     
-    ax.set_xlim(0, x_range)
-    ax.set_ylim(0, y_range)
-    ax.grid(True)
+
+
+        
+    plt.xlim(0, x_range)
+    plt.ylim(0, y_range)
+    plt.grid(True)
     plt.pause(0.001)
+    plt.draw()
 
 def euclidean_distance(point1, point2):
     return sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
@@ -88,7 +91,7 @@ def check_segments_intersect(p1, q1, p2, q2):
     return False
 
 
-def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000, rewire_radius=0.5):
+def rrt_star(map_obj, start_point, end_point, max_points=10000, rewire_radius=0.5):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -150,8 +153,7 @@ def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000,
                 parent_nodes[target_point] = parent
                 costs[target_point] = cost
                 points_added += 1
-                if only_result is False:
-                    draw_map(ax, map_obj,start_point, end_point, nodes) # Uncomment to visualize every added point to the tree
+                draw_map(map_obj, nodes) # Uncomment to visualize every added point to the tree
 
                 if euclidean_distance(target_point, end_point) <= 1.0 and is_far_from_obstacles(target_point, obstacles):
                     nodes.append((end_point, target_point, cost + euclidean_distance(target_point, end_point)))
@@ -165,8 +167,22 @@ def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000,
                         current_node = parent_nodes[current_node]
                     path.append(start_point)
                     path.reverse()
-                    draw_map(ax, map_obj,start_point, end_point, nodes, path)
+                    draw_map(map_obj, nodes, path)
                     print("path: ", path)
                     return path
     print("Path not found.")
     return None
+
+if __name__ == "__main__":
+    """
+    Available map:
+    -QuadraticMap()
+    -LineMap()
+    -EmptyMap()
+    -Maze1()
+    """    
+    map = Maze1()
+    start_point = (5, 5)
+    end_point = (5, 9)
+    rrt_star(map, start_point, end_point)
+    plt.show()

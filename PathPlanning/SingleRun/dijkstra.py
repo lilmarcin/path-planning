@@ -10,7 +10,54 @@ from empty_map import EmptyMap
 from maze_1 import Maze1
 
 
-def intersect_obstacle(map_obj, start_point, end_point):
+def draw_map(map_obj, visited_points, path, current_point=None):
+    plt.clf() 
+    x_range = map_obj.x_range
+    y_range = map_obj.y_range
+    obstacles = map_obj.obstacles
+    obstacles_lines = map_obj.obstacles_lines
+
+    # Plot obstacles
+    for obstacle in obstacles_lines:
+        x_coords, y_coords = zip(*obstacle)
+        plt.plot(x_coords, y_coords, color='black', linewidth=1)
+
+    # Plot visited points
+    for point in visited_points:
+        plt.scatter(point[0], point[1], color='gray', s=5)
+
+    # Plot path
+    for i in range(len(path) - 1):
+        plt.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='red')
+
+
+    # Plot current point
+    if current_point:
+        plt.scatter(current_point[0], current_point[1], color='green', s=50)
+
+    # Plot start and end points
+    plt.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
+    plt.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
+
+    if(current_point==end_point):
+        plt.scatter(end_point[0], end_point[1], color='green', s=100, label='End Point')
+        plt.plot([path[-1][0], end_point[0]], [path[-1][1], end_point[1]], color='red')
+        
+    plt.xlim(0, x_range)
+    plt.ylim(0, y_range)
+    plt.grid(True)
+    plt.pause(0.001)
+
+
+def dijkstra(map_obj, start_point, end_point):
+    """
+    Dijkstra algorithm to find the shortest path between two points on the map.
+
+    :param map_obj: Map class object (np. EmptyMap, QuadraticMap, LineMap)
+    :param start_point: Coordinates of the start point in the format (x, y)
+    :param end_point: Coordinates of the end point in the format (x, y)
+    :return: List of coordinates representing the shortest path from start_point to end_point.
+    """
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -22,62 +69,6 @@ def intersect_obstacle(map_obj, start_point, end_point):
         end_point[1] < 0 or end_point[1] >= y_range or
         end_point in obstacles):
         print("Start point and end point must not be in the obstacle!")
-        return True
-    return False
-
-def draw_map(ax, map_obj, start_point, end_point, visited_points, path, current_point=None):
-    ax.clear()
-    x_range = map_obj.x_range
-    y_range = map_obj.y_range
-    obstacles = map_obj.obstacles
-    obstacles_lines = map_obj.obstacles_lines
-
-    # Plot obstacles
-    for obstacle in obstacles_lines:
-        x_coords, y_coords = zip(*obstacle)
-        ax.plot(x_coords, y_coords, color='black', linewidth=1)
-
-    # Plot visited points
-    for point in visited_points:
-        ax.scatter(point[0], point[1], color='green', s=5)
-
-    # Plot path
-    for i in range(len(path) - 1):
-        ax.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='red')
-
-
-    # Plot current point
-    if current_point:
-        ax.scatter(current_point[0], current_point[1], color='green', s=50)
-
-    # Plot start and end points
-    ax.scatter(start_point[0], start_point[1], color='blue', s=100, label='Start Point')
-    ax.scatter(end_point[0], end_point[1], color='teal', s=100, label='End Point')
-
-    if(current_point==end_point):
-        #ax.scatter(end_point[0], end_point[1], color='green', s=100, label='End Point')
-        ax.plot([path[-1][0], end_point[0]], [path[-1][1], end_point[1]], color='red')
-        
-    ax.set_xlim(0, x_range)
-    ax.set_ylim(0, y_range)
-    ax.grid(True)
-    plt.pause(0.001)
-
-def dijkstra(ax, map_obj, start_point, end_point, only_result):
-    """
-    Dijkstra algorithm to find the shortest path between two points on the map.
-    :param ax: plot on axes
-    :param map_obj: Map class object (np. EmptyMap, QuadraticMap, LineMap)
-    :param start_point: Coordinates of the start point in the format (x, y)
-    :param end_point: Coordinates of the end point in the format (x, y)
-    :param only_result: Boolean, Draw only result (not step by step) if True
-    :return: List of coordinates representing the shortest path from start_point to end_point.
-    """
-    x_range = map_obj.x_range
-    y_range = map_obj.y_range
-    obstacles = map_obj.obstacles
-
-    if intersect_obstacle(map_obj, start_point, end_point):
         return None
 
     pq = [(0, start_point, [])]  # Priority queue (cost, current_point, path)
@@ -88,14 +79,12 @@ def dijkstra(ax, map_obj, start_point, end_point, only_result):
     print("Starting Dijkstra...")
     while pq:
         cost, current_point, path = heapq.heappop(pq)
-        if only_result is False:
-            draw_map(ax, map_obj, start_point, end_point, visited, path, current_point) # Uncomment to draw every visited point
+        draw_map(map_obj, visited, path, current_point) # Uncomment to draw every visited point
         visited.add(current_point)
 
         if current_point == end_point:
             print("Path found:", path + [current_point])
             path.append(end_point)
-            draw_map(ax, map_obj, start_point, end_point, visited, path, current_point)
             return path
 
         neighbors = [(current_point[0] + dx, current_point[1] + dy) for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]]
@@ -115,3 +104,17 @@ def dijkstra(ax, map_obj, start_point, end_point, only_result):
 
     print("Path not found.")
     return None
+
+if __name__ == "__main__":
+    """
+    Available map:
+    -QuadraticMap()
+    -LineMap()
+    -EmptyMap()
+    -Maze1()
+    """    
+    map = Maze1()
+    start_point = (5, 5)
+    end_point = (5, 9)
+    dijkstra(map, start_point, end_point)
+    plt.show()

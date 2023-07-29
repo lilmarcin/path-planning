@@ -66,7 +66,7 @@ class LineMap:
 
         return obstacles_lines  
     
-if __name__ == "__main__":
+""" if __name__ == "__main__":
 
     map = LineMap()
 
@@ -80,4 +80,4 @@ if __name__ == "__main__":
     plt.xlim(0, map.x_range)
     plt.ylim(0, map.y_range)
     plt.grid(True)
-    plt.show()
+    plt.show() """

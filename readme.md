@@ -67,5 +67,48 @@ In addition, the `PathPlanning/SingleRun` folder contains a single implementatio
 This is a 2D grid based the shortest path planning with A* algorithm
 ![](images/astar.gif)
 
+# Dijkstra algorithm
+This is a 2D grid based the shortest path planning with Dijkstra's algorithm.
+![](images/dijkstra.gif)
+
+# Breadth First Search (BFS) algorithm
+This is a 2D grid based the shortest path planning with Breadth-First Search algorithm.
+![](images/bfs.gif)
+
+# Depth First Search (DFS)
+This is a 2D grid based path planning with Depth First Search algorithm.
+![](images/dfs.gif)
+
+# Rapidly-Exploring Random Trees (RRT) algorithm
+This is a path planning code with RRT
+![](images/rrt.gif)
+
+# RRT* algorithm
+This is a path planning code with RRT*
+![](images/rrt_star.gif)
+
+# RRT-Connect algorithm
+This is a path planning code with RRT
+![](images/rrt_connect.gif)
+
+## Examples
+- A*
+![Screenshot](images/astar_maze1.png)
+
+- Dijkstra
+![Screenshot](images/dijkstra_maze1)
+
+- BFS and DFS
+![Screenshot](images/bfs_maze1.png)
+![Screenshot](images/dfs_maze1.png)
+- RRT
+![Screenshot](images/rrt_maze1.png)
+
+- RRT*
+![Screenshot](images/rrt_star_maze1.png)
+
+- RRT-Connect
+![Screenshot](images/rrt_connect_maze1.png)
+
 ## License
 MIT License

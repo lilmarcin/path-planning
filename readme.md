@@ -64,7 +64,7 @@ In addition, the `PathPlanning/SingleRun` folder contains a single implementatio
 
 ## Path Planning
 # A* algorithm
-This is a 2D grid based the shortest path planning with A* algorithm
+This is a 2D grid based the shortest path planning with A* algorithm.
 ![](images/astar.gif)
 
 # Dijkstra algorithm
@@ -80,15 +80,15 @@ This is a 2D grid based path planning with Depth First Search algorithm.
 ![](images/dfs.gif)
 
 # Rapidly-Exploring Random Trees (RRT) algorithm
-This is a path planning code with RRT
+This is a path planning code with RRT.
 ![](images/rrt.gif)
 
 # RRT* algorithm
-This is a path planning code with RRT*
+This is a path planning code with RRT*.
 ![](images/rrt_star.gif)
 
 # RRT-Connect algorithm
-This is a path planning code with RRT
+This is a path planning code with RRT.
 ![](images/rrt_connect.gif)
 
 ## Examples

@@ -8,8 +8,8 @@ from map_2 import LineMap
 from empty_map import EmptyMap
 from maze_1 import Maze1
 
-def draw_map(ax, map_obj,start_point, end_point, nodes, path=None):
-    ax.clear()
+def draw_map(map_obj,start_point, end_point, nodes, path=None):
+    plt.clf() 
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles

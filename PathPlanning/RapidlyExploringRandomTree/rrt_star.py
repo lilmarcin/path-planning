@@ -2,11 +2,6 @@ import matplotlib.pyplot as plt
 import random
 import sys
 from math import sqrt
-sys.path.append('Maps')
-from map_1 import QuadraticMap
-from map_2 import LineMap
-from empty_map import EmptyMap
-from maze_1 import Maze1
 
 def draw_map(ax, map_obj, start_point, end_point, nodes, path=None):
     ax.clear()
@@ -88,7 +83,7 @@ def check_segments_intersect(p1, q1, p2, q2):
     return False
 
 
-def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000, rewire_radius=0.5):
+def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000, rewire_radius=5.0):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -109,55 +104,47 @@ def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000,
     print("Starting RRT*...")
     points_added = 0
     while points_added < max_points:
+        # 1. Draw a point
         target_point = (round(random.uniform(0, x_range), 2), round(random.uniform(0, y_range), 2))
+
+        if is_far_from_obstacles(target_point, obstacles):
+            # 2. Checking for each available node (parent).
+            nearest_node = None
+            min_cost = float('inf')
+            for node, parent_node, cost in nodes:
+                if not intersects_obstacle(node, target_point, obstacles_lines):
+                    # 2a. Calculating the cost from the beginning of the route to this point by this parent.
+                    new_cost = costs[node] + euclidean_distance(node, target_point)
+                    if new_cost < min_cost:
+                        nearest_node = node
+                        min_cost = new_cost
         
-        nearest_dist = float('inf')
-        nearest_node = None
-        for node, parent, cost in nodes:
-            dist = euclidean_distance(node, target_point)
-            if dist < nearest_dist:
-                nearest_dist = dist
-                nearest_node = node
-                nearest_parent = parent
-                nearest_cost = cost
-        
-        if nearest_node is None:
-            continue
-                
-        if nearest_dist <= 1.5 and is_far_from_obstacles(target_point, obstacles):
-            parent = nearest_node if nearest_dist <= 1.5 else nearest_parent
-            if not intersects_obstacle(parent, target_point, obstacles_lines):
-                cost = nearest_cost + euclidean_distance(parent, target_point)
-                
-                # Rewire step
-                for node, _, node_cost in nodes:
-                    if node == parent:
-                        continue
-                    if euclidean_distance(node, target_point) <= rewire_radius:
-                        new_cost = cost + euclidean_distance(node, target_point)
-                        if new_cost < node_cost and not intersects_obstacle(node, target_point, obstacles_lines):
+        if nearest_node is not None:
+                # 2b. Selecting the shortest distance to the starting point and saving the point to that parent.
+                nodes.append((target_point, nearest_node, min_cost))
+                parent_nodes[target_point] = nearest_node
+                costs[target_point] = min_cost
+
+                # 3. Selecting the parent with the lowest cost.
+                for node, parent_node, cost in nodes:
+                    if node != target_point and euclidean_distance(node, target_point) <= rewire_radius:
+                        new_cost = costs[target_point] + euclidean_distance(node, target_point)
+                        if new_cost < costs[node] and not intersects_obstacle(node, target_point, obstacles_lines):
                             parent_nodes[node] = target_point
                             costs[node] = new_cost
 
-                current_node = nearest_node
-                while current_node != start_point:
-                    if cost < costs[current_node]: 
-                        costs[current_node] = cost
-                        parent_nodes[current_node] = parent
-                    current_node = parent_nodes[current_node]
-                
-                nodes.append((target_point, parent, cost))
-                parent_nodes[target_point] = parent
-                costs[target_point] = cost
                 points_added += 1
                 if only_result is False:
-                    draw_map(ax, map_obj,start_point, end_point, nodes) # Uncomment to visualize every added point to the tree
+                    draw_map(ax, map_obj,start_point, end_point, nodes) # Draw added nodes
 
-                if euclidean_distance(target_point, end_point) <= 1.0 and is_far_from_obstacles(target_point, obstacles):
-                    nodes.append((end_point, target_point, cost + euclidean_distance(target_point, end_point)))
+                # 4: Checking whether a point can be connected to an endpoint
+                if euclidean_distance(target_point, end_point) <= 5.0 and not intersects_obstacle(end_point, target_point, obstacles_lines):
+                    
+                    nodes.append((end_point, target_point, min_cost + euclidean_distance(target_point, end_point)))
                     parent_nodes[end_point] = target_point
-                    costs[end_point] = cost + euclidean_distance(target_point, end_point)
-                    print(f"Path found at {points_added} iteration.")
+                    costs[end_point] = min_cost + euclidean_distance(target_point, end_point)
+
+                    # Create final path
                     path = [end_point]
                     current_node = target_point
                     while current_node != start_point:
@@ -165,8 +152,10 @@ def rrt_star(ax, map_obj, start_point, end_point, only_result, max_points=10000,
                         current_node = parent_nodes[current_node]
                     path.append(start_point)
                     path.reverse()
-                    draw_map(ax, map_obj,start_point, end_point, nodes, path)
-                    print("path: ", path)
+                    draw_map(map_obj, start_point, end_point, nodes, path)
+                    print("Path found at", points_added, "iteration.")
+                    print("Path:", path)
                     return path
+
     print("Path not found.")
     return None

@@ -84,7 +84,7 @@ This is a path planning code with RRT.
 ![](images/rrt.gif)
 
 # RRT* algorithm
-This is a path planning code with RRT*.
+This is a path planning code with RRT* (based on https://roboticsproceedings.org/rss06/p34.pdf).
 ![](images/rrt_star.gif)
 
 # RRT-Connect algorithm

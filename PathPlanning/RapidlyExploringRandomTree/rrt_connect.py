@@ -2,11 +2,6 @@ import matplotlib.pyplot as plt
 import random
 import sys
 from math import sqrt
-sys.path.append('Maps')
-from map_1 import QuadraticMap
-from map_2 import LineMap
-from empty_map import EmptyMap
-from maze_1 import Maze1
 
 def draw_map(ax, map_obj, start_point, end_point, start_nodes, end_nodes, path=None):
     ax.clear()

@@ -2,18 +2,6 @@
 
 This project is a path planning application that helps determine a path from a start point to an end point using various algorithms.  
 
-# Data
-
-The available algorithms include A*, Dijkstra, Breadth-First Search (BFS), Depth-First Search (DFS), Rapidly-exploring Random Trees (RRT), RRT*, and RRT-Connect.
-
-- Fruits:
-  banana, apple, pear, grapes, orange, kiwi, watermelon, pomegranate, pineapple, mango
-
-- Vegetables:
-  cucumber, carrot, onion, potato, lemon, tomato, raddish, beetroot, cabbage, lettuce, spinach, soy bean, cauliflower, pepper, chilli pepper, turnip, corn, sweetcorn, sweet potato, jalepeño, ginger, garlic, peas, eggplant
-
-
-
 ## Features
 
 - demonstrates the operation of the selected path planning algorithm

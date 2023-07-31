@@ -35,6 +35,7 @@ This project is a path planning application that helps determine a path from a s
     plotter.py
 ![Screenshot](images/plotter.png)
 - **Choose Map**: You can select the type of map you want to use (map preview displayed on the left side). By default, an empty map is loaded.
+![](images/choose_map.gif)
 
 - **Enter Start and End Points**: You can input the coordinates of the start and end points. The default values are (1, 1) for the start point and (9, 9) for the end point.
 

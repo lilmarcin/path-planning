@@ -37,9 +37,6 @@ def draw_map(map_obj, start_point, end_point, nodes, path=None):
         for next_node in path[1:]:
             plt.plot([current_node[0], next_node[0]], [current_node[1], next_node[1]], color='red')
             current_node = next_node
-
-
-        
     plt.xlim(0, x_range)
     plt.ylim(0, y_range)
     plt.grid(True)
@@ -92,8 +89,7 @@ def check_segments_intersect(p1, q1, p2, q2):
     return False
 
 
-
-def rrt_star(map_obj, start_point, end_point, max_points=1000, rewire_radius=15.0):
+def rrt_star(map_obj, start_point, end_point, max_points=1000, rewire_radius=5.0):
     x_range = map_obj.x_range
     y_range = map_obj.y_range
     obstacles = map_obj.obstacles
@@ -129,41 +125,44 @@ def rrt_star(map_obj, start_point, end_point, max_points=1000, rewire_radius=15.
                         nearest_node = node
                         min_cost = new_cost
 
-            if nearest_node is not None:
-                # 2b. Selecting the shortest distance to the starting point and saving the point to that parent.
-                nodes.append((target_point, nearest_node, min_cost))
-                parent_nodes[target_point] = nearest_node
-                costs[target_point] = min_cost
+            if nearest_node is None:
+                continue
+            # 2b. Selecting the shortest distance to the starting point and saving the point to that parent.
+            nodes.append((target_point, nearest_node, min_cost))
+            parent_nodes[target_point] = nearest_node
+            costs[target_point] = min_cost
 
-                # 3. Selecting the parent with the lowest cost.
-                for node, parent_node, cost in nodes:
-                    if node != target_point and euclidean_distance(node, target_point) <= rewire_radius:
-                        new_cost = costs[target_point] + euclidean_distance(node, target_point)
-                        if new_cost < costs[node] and not intersects_obstacle(node, target_point, obstacles_lines):
-                            parent_nodes[node] = target_point
-                            costs[node] = new_cost
+            # 3. Selecting the parent with the lowest cost.
+            for node, parent_node, cost in nodes:
+                if node != target_point and euclidean_distance(node, target_point) <= rewire_radius:
+                    new_cost = costs[target_point] + euclidean_distance(node, target_point)
+                    if new_cost < costs[node] and not intersects_obstacle(node, target_point, obstacles_lines):
+                        parent_nodes[node] = target_point
+                        costs[node] = new_cost
 
-                points_added += 1
-                draw_map(map_obj, start_point, end_point, nodes) # draw added nodes
-                # 4: Checking whether a point can be connected to an endpoint
-                if euclidean_distance(target_point, end_point) <= 5.0 and not intersects_obstacle(end_point, target_point, obstacles_lines):
-                    
-                    nodes.append((end_point, target_point, min_cost + euclidean_distance(target_point, end_point)))
-                    parent_nodes[end_point] = target_point
-                    costs[end_point] = min_cost + euclidean_distance(target_point, end_point)
+            points_added += 1
 
-                    # Create final path
-                    path = [end_point]
-                    current_node = target_point
-                    while current_node != start_point:
-                        path.append(current_node)
-                        current_node = parent_nodes[current_node]
-                    path.append(start_point)
-                    path.reverse()
-                    draw_map(map_obj, start_point, end_point, nodes, path)
-                    print("Path found at", points_added, "iteration.")
-                    print("Path:", path)
-                    return path
+            #draw_map(map_obj, start_point, end_point, nodes) # draw added nodes
+            
+            # 4: Checking whether a point can be connected to an endpoint
+            if euclidean_distance(target_point, end_point) <= 5.0 and not intersects_obstacle(end_point, target_point, obstacles_lines):
+                
+                nodes.append((end_point, target_point, min_cost + euclidean_distance(target_point, end_point)))
+                parent_nodes[end_point] = target_point
+                costs[end_point] = min_cost + euclidean_distance(target_point, end_point)
+
+                # Create final path
+                path = [end_point]
+                current_node = target_point
+                while current_node != start_point:
+                    path.append(current_node)
+                    current_node = parent_nodes[current_node]
+                path.append(start_point)
+                path.reverse()
+                draw_map(map_obj, start_point, end_point, nodes, path)
+                print("Path found at", points_added, "iteration.")
+                print("Path:", path)
+                return path
 
     print("Path not found.")
     return None
@@ -176,8 +175,8 @@ if __name__ == "__main__":
     -EmptyMap()
     -Maze1()
     """    
-    map = Maze2()
-    start_point = (1, 1)
+    map = Maze1()
+    start_point = (5, 5)
     end_point = (5, 9)
     rrt_star(map, start_point, end_point)
     plt.show()

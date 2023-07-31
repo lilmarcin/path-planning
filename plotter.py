@@ -116,7 +116,7 @@ def on_start_planning_clicked(event):
     elif algorithm == 'RRT':
         rrt(ax_left, map, start_point, end_point, only_result, max_points=10000)
     elif algorithm == 'RRT*':
-        rrt_star(ax_left, map, start_point, end_point, only_result, max_points=10000, rewire_radius=0.5)
+        rrt_star(ax_left, map, start_point, end_point, only_result, max_points=10000, rewire_radius=3.0)
     elif algorithm == 'RRT-Connect':
         rrt_connect(ax_left, map, start_point, end_point, only_result, max_points=10000)
     elif algorithm == 'BFS':

@@ -118,8 +118,8 @@ def rrt(ax, map_obj, start_point, end_point, only_result, max_points=20000):
         if nearest_node is None:
             continue
                 
-        if nearest_dist <= 1.0 and is_far_from_obstacles(target_point, obstacles):
-            parent = nearest_node if nearest_dist <= 1.0 else nearest_parent
+        if nearest_dist <= 2.0 and is_far_from_obstacles(target_point, obstacles):
+            parent = nearest_node if nearest_dist <= 2.0 else nearest_parent
             if not intersects_obstacle(parent, target_point, obstacles_lines):
                 current_node = nearest_node
                 current_node = parent_nodes[current_node]
